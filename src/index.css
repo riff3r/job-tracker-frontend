@@ -1,0 +1,133 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background-color: #F9F9F9;
+    color: #1A1C1C;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #C7C4D8;
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #777587;
+  }
+}
+
+@layer components {
+  /* ─── Layout Shell ─────────────────────────────────── */
+  .app-sidebar {
+    @apply fixed left-0 top-0 h-full z-40 flex flex-col;
+    width: 240px;
+    background: #FFFFFF;
+    border-right: 1px solid #E8E8E8;
+  }
+
+  /* ─── Sidebar Brand ────────────────────────────────── */
+  .sidebar-brand {
+    @apply flex items-center gap-2.5 px-5 py-4;
+    border-bottom: 1px solid #EEEEEE;
+    min-height: 56px;
+  }
+
+  .sidebar-brand-icon {
+    @apply w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0;
+    background: #4F46E5;
+  }
+
+  .sidebar-brand-name {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: #1A1C1C;
+  }
+
+  /* ─── Sidebar Nav ──────────────────────────────────── */
+  .sidebar-section-label {
+    @apply px-4 mb-1;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #777587;
+  }
+
+  .sidebar-nav-item {
+    @apply flex items-center gap-3 mx-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150 cursor-pointer;
+    color: #464555;
+  }
+
+  .sidebar-nav-item:hover {
+    background-color: #F3F3F3;
+    color: #1A1C1C;
+  }
+
+  .sidebar-nav-item.active {
+    background-color: #EEEEFF;
+    color: #4F46E5;
+  }
+
+  .sidebar-nav-item .nav-icon {
+    @apply w-[18px] h-[18px] flex-shrink-0;
+  }
+
+  /* ─── Topbar ────────────────────────────────────────── */
+  .app-topbar {
+    @apply fixed top-0 right-0 flex items-center px-6 z-30;
+    left: 240px;
+    height: 56px;
+    background: #F9F9F9;
+    border-bottom: 1px solid #E8E8E8;
+  }
+
+  /* ─── Stat Card ─────────────────────────────────────── */
+  .stat-card {
+    @apply bg-white rounded-xl p-5 transition-shadow duration-200;
+    border: 1px solid #E8E8E8;
+  }
+  .stat-card:hover {
+    box-shadow: 0px 4px 12px rgba(0,0,0,0.06);
+  }
+
+  /* ─── Status Pill ────────────────────────────────────── */
+  .status-pill {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold;
+  }
+
+  /* ─── Card Base ──────────────────────────────────────── */
+  .card {
+    @apply bg-white rounded-xl;
+    border: 1px solid #E8E8E8;
+  }
+
+  /* ─── Section Header ─────────────────────────────────── */
+  .section-header {
+    @apply flex items-center justify-between px-5 py-4;
+    border-bottom: 1px solid #EEEEEE;
+  }
+
+  /* ─── Avatar ─────────────────────────────────────────── */
+  .avatar {
+    @apply rounded-full flex items-center justify-center font-semibold flex-shrink-0;
+  }
+}
