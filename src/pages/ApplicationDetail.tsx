@@ -1,7 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { useApplication } from '@/hooks/useApplication';
@@ -13,27 +12,9 @@ import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Spinner } from '@/components/ui/Spinner';
 import { cn, getApiErrorMessage } from '@/lib/utils';
+import { LOCATION_OPTIONS } from '@/lib/constants';
 import { APPLICATION_STATUSES, STATUS_LABELS } from '@/types';
-
-const LOCATION_OPTIONS = [
-  { value: 'ONSITE', label: 'On Site' },
-  { value: 'REMOTE', label: 'Remote' },
-  { value: 'HYBRID', label: 'Hybrid' },
-] as const;
-
-const schema = z.object({
-  company: z.string().min(1, 'Company is required'),
-  role: z.string().min(1, 'Role is required'),
-  jobUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
-  location: z.enum(['ONSITE', 'REMOTE', 'HYBRID']).optional(),
-  salary: z.string().optional(),
-  status: z.enum(['WISHLIST', 'APPLIED', 'PHONE_SCREEN', 'INTERVIEW', 'OFFER', 'REJECTED', 'WITHDRAWN']),
-  appliedAt: z.string().optional(),
-  followUpDate: z.string().optional(),
-  notes: z.string().optional(),
-});
-
-type FormValues = z.infer<typeof schema>;
+import { updateApplicationSchema, type UpdateApplicationFormValues } from '@/schemas/application';
 
 export default function ApplicationDetail() {
   const { id } = useParams<{ id: string }>();
@@ -49,7 +30,7 @@ export default function ApplicationDetail() {
     handleSubmit,
     reset,
     formState: { errors, isDirty },
-  } = useForm<FormValues>({ resolver: zodResolver(schema) });
+  } = useForm<UpdateApplicationFormValues>({ resolver: zodResolver(updateApplicationSchema) });
 
   useEffect(() => {
     if (application) {
@@ -71,7 +52,7 @@ export default function ApplicationDetail() {
     }
   }, [application, reset]);
 
-  function onSubmit(values: FormValues) {
+  function onSubmit(values: UpdateApplicationFormValues) {
     if (!id) return;
     updateApplication.mutate(
       {

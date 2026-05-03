@@ -1,38 +1,14 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { useAuthStore, getRefreshToken } from '@/store/authStore';
 import { api } from '@/lib/axios';
 import { Spinner } from '@/components/ui/Spinner';
 import { cn, getApiErrorMessage } from '@/lib/utils';
+import { AVATAR_MAX_BYTES } from '@/lib/constants';
+import { profileSchema, passwordSchema, type ProfileFormValues, type PasswordFormValues } from '@/schemas/user';
 import type { ApiResponse, User } from '@/types';
-
-const AVATAR_MAX_BYTES = 2 * 1024 * 1024; // 2 MB
-
-const profileSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-});
-
-const passwordSchema = z
-  .object({
-    currentPassword: z.string().min(1, 'Current password is required'),
-    newPassword: z.string().min(8, 'New password must be at least 8 characters'),
-    confirmNewPassword: z.string().min(1, 'Please confirm your new password'),
-  })
-  .superRefine(({ newPassword, confirmNewPassword }, ctx) => {
-    if (newPassword !== confirmNewPassword) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Passwords do not match',
-        path: ['confirmNewPassword'],
-      });
-    }
-  });
-
-type ProfileFormValues = z.infer<typeof profileSchema>;
-type PasswordFormValues = z.infer<typeof passwordSchema>;
 
 export default function Settings() {
   const { user, setTokens } = useAuthStore();

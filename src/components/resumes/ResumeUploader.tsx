@@ -1,23 +1,17 @@
 import { useRef, useState, type DragEvent } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { toast } from 'sonner';
 import { cn, getApiErrorMessage } from '@/lib/utils';
+import { RESUME_MAX_SIZE_MB } from '@/lib/constants';
 import { useUploadResume } from '@/mutations/useUploadResume';
 import { Spinner } from '@/components/ui/Spinner';
+import { resumeUploadSchema, type ResumeUploadFormValues } from '@/schemas/resume';
 
 const ACCEPTED_TYPES = [
   'application/pdf',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 ];
-const MAX_SIZE_MB = 5;
-
-const schema = z.object({
-  label: z.string().min(1, 'Label is required'),
-});
-
-type FormValues = z.infer<typeof schema>;
 
 export function ResumeUploader() {
   const [dragOver, setDragOver] = useState(false);
@@ -26,8 +20,8 @@ export function ResumeUploader() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const uploadResume = useUploadResume();
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
-    resolver: zodResolver(schema),
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<ResumeUploadFormValues>({
+    resolver: zodResolver(resumeUploadSchema),
   });
 
   function validateFile(file: File): boolean {
@@ -35,8 +29,8 @@ export function ResumeUploader() {
       toast.error('Only PDF and DOCX files are accepted');
       return false;
     }
-    if (file.size > MAX_SIZE_MB * 1024 * 1024) {
-      toast.error(`File must be smaller than ${MAX_SIZE_MB}MB`);
+    if (file.size > RESUME_MAX_SIZE_MB * 1024 * 1024) {
+      toast.error(`File must be smaller than ${RESUME_MAX_SIZE_MB}MB`);
       return false;
     }
     return true;
@@ -54,7 +48,7 @@ export function ResumeUploader() {
     if (file && validateFile(file)) setSelectedFile(file);
   }
 
-  function onSubmit(values: FormValues) {
+  function onSubmit(values: ResumeUploadFormValues) {
     if (!selectedFile) {
       toast.error('Please select a file');
       return;

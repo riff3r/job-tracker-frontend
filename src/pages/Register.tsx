@@ -1,32 +1,13 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/store/authStore';
 import { api } from '@/lib/axios';
 import { Spinner } from '@/components/ui/Spinner';
+import { registerSchema, type RegisterFormValues } from '@/schemas/auth';
 import type { ApiResponse, AuthTokens } from '@/types';
-
-const schema = z
-  .object({
-    name: z.string().min(1, 'Name is required'),
-    email: z.string().min(1, 'Email is required').email('Enter a valid email'),
-    password: z.string().min(8, 'Password must be at least 8 characters'),
-    confirmPassword: z.string().min(1, 'Please confirm your password'),
-  })
-  .superRefine(({ password, confirmPassword }, ctx) => {
-    if (password !== confirmPassword) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Passwords do not match',
-        path: ['confirmPassword'],
-      });
-    }
-  });
-
-type FormValues = z.infer<typeof schema>;
 
 function getPasswordStrength(password: string): { label: string; color: string; width: string } {
   if (password.length === 0) return { label: '', color: '', width: '0%' };
@@ -47,12 +28,12 @@ export default function Register() {
     handleSubmit,
     watch,
     formState: { errors },
-  } = useForm<FormValues>({ resolver: zodResolver(schema) });
+  } = useForm<RegisterFormValues>({ resolver: zodResolver(registerSchema) });
 
   const password = watch('password', '');
   const strength = getPasswordStrength(password);
 
-  async function onSubmit(values: FormValues) {
+  async function onSubmit(values: RegisterFormValues) {
     setIsLoading(true);
     setServerError(null);
     try {

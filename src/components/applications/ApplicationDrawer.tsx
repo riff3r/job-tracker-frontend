@@ -1,17 +1,12 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { toast } from 'sonner';
 import { cn, getApiErrorMessage } from '@/lib/utils';
+import { LOCATION_OPTIONS } from '@/lib/constants';
 import { APPLICATION_STATUSES, STATUS_LABELS } from '@/types';
 import { useCreateApplication } from '@/mutations/useCreateApplication';
 import { Spinner } from '@/components/ui/Spinner';
-
-const LOCATION_OPTIONS = [
-  { value: 'ONSITE', label: 'On Site' },
-  { value: 'REMOTE', label: 'Remote' },
-  { value: 'HYBRID', label: 'Hybrid' },
-] as const;
+import { createApplicationSchema, type CreateApplicationFormValues } from '@/schemas/application';
 
 function todayISO() {
   const d = new Date();
@@ -19,20 +14,6 @@ function todayISO() {
   const dd = String(d.getDate()).padStart(2, '0');
   return `${d.getFullYear()}-${mm}-${dd}`;
 }
-
-const schema = z.object({
-  company: z.string().min(1, 'Company is required'),
-  role: z.string().min(1, 'Role is required'),
-  jobUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
-  location: z.enum(['ONSITE', 'REMOTE', 'HYBRID']),
-  salary: z.string().optional(),
-  status: z.enum(['WISHLIST', 'APPLIED', 'PHONE_SCREEN', 'INTERVIEW', 'OFFER', 'REJECTED', 'WITHDRAWN']),
-  appliedAt: z.string().optional(),
-  followUpDate: z.string().optional(),
-  notes: z.string().optional(),
-});
-
-type FormValues = z.infer<typeof schema>;
 
 interface ApplicationDrawerProps {
   isOpen: boolean;
@@ -47,8 +28,8 @@ export function ApplicationDrawer({ isOpen, onClose }: ApplicationDrawerProps) {
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<FormValues>({
-    resolver: zodResolver(schema),
+  } = useForm<CreateApplicationFormValues>({
+    resolver: zodResolver(createApplicationSchema),
     defaultValues: {
       status: 'APPLIED',
       location: 'ONSITE',
@@ -56,7 +37,7 @@ export function ApplicationDrawer({ isOpen, onClose }: ApplicationDrawerProps) {
     },
   });
 
-  function onSubmit(values: FormValues) {
+  function onSubmit(values: CreateApplicationFormValues) {
     createApplication.mutate(
       {
         ...values,

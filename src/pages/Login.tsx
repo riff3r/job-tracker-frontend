@@ -1,20 +1,13 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/store/authStore';
 import { api } from '@/lib/axios';
 import { Spinner } from '@/components/ui/Spinner';
+import { loginSchema, type LoginFormValues } from '@/schemas/auth';
 import type { ApiResponse, AuthTokens } from '@/types';
-
-const schema = z.object({
-  email: z.string().min(1, 'Email is required').email('Enter a valid email'),
-  password: z.string().min(1, 'Password is required'),
-});
-
-type FormValues = z.infer<typeof schema>;
 
 export default function Login() {
   const navigate = useNavigate();
@@ -26,9 +19,9 @@ export default function Login() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormValues>({ resolver: zodResolver(schema) });
+  } = useForm<LoginFormValues>({ resolver: zodResolver(loginSchema) });
 
-  async function onSubmit(values: FormValues) {
+  async function onSubmit(values: LoginFormValues) {
     setIsLoading(true);
     setServerError(null);
     try {

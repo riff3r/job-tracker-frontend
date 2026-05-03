@@ -6,10 +6,8 @@ import { useRecentActivity } from '@/hooks/useRecentActivity';
 import { useApplications } from '@/hooks/useApplications';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { STATUS_LABELS, STATUS_COLORS } from '@/types';
+import { WEEKLY_CHART_WINDOW, MONTHLY_CHART_WINDOW } from '@/lib/constants';
 import type { ApplicationStatus } from '@/types';
-
-const WEEKLY_WINDOW = 10;  // last N weeks shown on chart
-const MONTHLY_WINDOW = 8;  // last N months shown on chart
 
 /* ─── Helpers ────────────────────────────────────────────────────────── */
 function todayISO() {
@@ -105,7 +103,7 @@ type ChartView = 'weekly' | 'monthly';
 interface BarPoint { label: string; count: number }
 
 function buildWeeklyBars(perWeek: Array<{ week: string; count: number }>): BarPoint[] {
-  return perWeek.slice(-WEEKLY_WINDOW).map((w) => ({ label: formatWeekLabel(w.week), count: w.count }));
+  return perWeek.slice(-WEEKLY_CHART_WINDOW).map((w) => ({ label: formatWeekLabel(w.week), count: w.count }));
 }
 
 function buildMonthlyBars(perWeek: Array<{ week: string; count: number }>): BarPoint[] {
@@ -119,7 +117,7 @@ function buildMonthlyBars(perWeek: Array<{ week: string; count: number }>): BarP
   });
   return [...byMonth.entries()]
     .sort((a, b) => a[1].order - b[1].order)
-    .slice(-MONTHLY_WINDOW)
+    .slice(-MONTHLY_CHART_WINDOW)
     .map(([label, v]) => ({ label, count: v.count }));
 }
 
