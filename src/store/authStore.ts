@@ -6,13 +6,11 @@ interface AuthState {
   accessToken: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  setTokens: (accessToken: string, refreshToken: string, user: User) => void;
+  setTokens: (accessToken: string, user: User) => void;
   setAccessToken: (accessToken: string) => void;
   clearAuth: () => void;
   setLoading: (loading: boolean) => void;
 }
-
-const REFRESH_TOKEN_KEY = 'refreshToken';
 
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
@@ -20,8 +18,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   isAuthenticated: false,
   isLoading: true,
 
-  setTokens: (accessToken, refreshToken, user) => {
-    localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+  setTokens: (accessToken, user) => {
     set({ accessToken, user, isAuthenticated: true, isLoading: false });
   },
 
@@ -30,12 +27,8 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   clearAuth: () => {
-    localStorage.removeItem(REFRESH_TOKEN_KEY);
     set({ user: null, accessToken: null, isAuthenticated: false, isLoading: false });
   },
 
   setLoading: (isLoading) => set({ isLoading }),
 }));
-
-export const getRefreshToken = (): string | null =>
-  localStorage.getItem(REFRESH_TOKEN_KEY);

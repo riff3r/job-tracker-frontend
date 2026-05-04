@@ -2,7 +2,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { useAuthStore, getRefreshToken } from '@/store/authStore';
+import { useAuthStore } from '@/store/authStore';
 import { api } from '@/lib/axios';
 import { Spinner } from '@/components/ui/Spinner';
 import { cn, getApiErrorMessage } from '@/lib/utils';
@@ -35,8 +35,7 @@ export default function Settings() {
   async function onProfileSubmit(values: ProfileFormValues) {
     try {
       const res = await api.patch<ApiResponse<User>>('/v1/users/me', { name: values.name });
-      const refreshToken = getRefreshToken() ?? '';
-      setTokens(useAuthStore.getState().accessToken ?? '', refreshToken, res.data.data);
+      setTokens(useAuthStore.getState().accessToken ?? '', res.data.data);
       toast.success('Profile updated');
       resetProfile({ name: values.name });
     } catch (err) {
@@ -62,8 +61,7 @@ export default function Settings() {
       const res = await api.post<ApiResponse<User>>('/v1/users/me/avatar', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      const refreshToken = getRefreshToken() ?? '';
-      setTokens(useAuthStore.getState().accessToken ?? '', refreshToken, res.data.data);
+      setTokens(useAuthStore.getState().accessToken ?? '', res.data.data);
       toast.success('Avatar updated');
     } catch (err) {
       toast.error(getApiErrorMessage(err, 'Failed to update avatar'));

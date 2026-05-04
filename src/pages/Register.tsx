@@ -42,8 +42,8 @@ export default function Register() {
         email: values.email,
         password: values.password,
       });
-      const { accessToken, refreshToken, user } = res.data.data;
-      setTokens(accessToken, refreshToken, user);
+      const { accessToken, user } = res.data.data;
+      setTokens(accessToken, user);
       navigate('/dashboard');
     } catch {
       setServerError('Registration failed. This email may already be in use.');

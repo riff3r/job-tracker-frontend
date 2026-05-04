@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import { useAuthStore, getRefreshToken } from '@/store/authStore';
+import { useAuthStore } from '@/store/authStore';
 import { api } from '@/lib/axios';
 import { toast } from 'sonner';
 
@@ -70,10 +70,7 @@ export function Sidebar() {
 
   async function handleLogout() {
     try {
-      const refreshToken = getRefreshToken();
-      if (refreshToken) {
-        await api.post('/v1/auth/logout', { refreshToken });
-      }
+      await api.post('/v1/auth/logout');
     } catch {
       // ignore API errors — still clear local auth
     } finally {

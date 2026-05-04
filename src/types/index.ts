@@ -100,7 +100,6 @@ export interface PaginatedResponse<T> {
 
 export interface AuthTokens {
   accessToken: string;
-  refreshToken: string;
   user: User;
 }
 

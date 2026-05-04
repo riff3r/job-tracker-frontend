@@ -18,20 +18,20 @@ export default function GoogleCallback() {
     }
 
     const accessToken = searchParams.get('accessToken');
-    const refreshToken = searchParams.get('refreshToken');
 
-    if (!accessToken || !refreshToken) {
+    if (!accessToken) {
       navigate('/login', { replace: true });
       return;
     }
 
-    // Temporarily set the access token so the /me call can be authorized
+    // Temporarily set the access token so the /me call can be authorized.
+    // The refresh cookie was already set by the backend redirect.
     useAuthStore.getState().setAccessToken(accessToken);
 
     api
       .get<ApiResponse<User>>('/v1/users/me')
       .then((res) => {
-        setTokens(accessToken, refreshToken, res.data.data);
+        setTokens(accessToken, res.data.data);
         navigate('/dashboard', { replace: true });
       })
       .catch(() => {

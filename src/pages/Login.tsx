@@ -26,8 +26,8 @@ export default function Login() {
     setServerError(null);
     try {
       const res = await api.post<ApiResponse<AuthTokens>>('/v1/auth/login', values);
-      const { accessToken, refreshToken, user } = res.data.data;
-      setTokens(accessToken, refreshToken, user);
+      const { accessToken, user } = res.data.data;
+      setTokens(accessToken, user);
       navigate('/dashboard');
     } catch {
       setServerError('Invalid email or password');

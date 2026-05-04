@@ -1,10 +1,11 @@
 import axios, { AxiosError, type InternalAxiosRequestConfig } from 'axios';
-import { useAuthStore, getRefreshToken } from '@/store/authStore';
+import { useAuthStore } from '@/store/authStore';
 import type { ApiResponse, AuthTokens } from '@/types';
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   headers: { 'Content-Type': 'application/json' },
+  withCredentials: true,
 });
 
 let isRefreshing = false;
@@ -43,13 +44,6 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    const refreshToken = getRefreshToken();
-    if (!refreshToken) {
-      useAuthStore.getState().clearAuth();
-      window.location.href = '/login';
-      return Promise.reject(error);
-    }
-
     if (isRefreshing) {
       return new Promise((resolve, reject) => {
         failedQueue.push({ resolve, reject });
@@ -65,15 +59,16 @@ api.interceptors.response.use(
     isRefreshing = true;
 
     try {
+      // Cookie is sent automatically — no body needed
       const response = await axios.post<ApiResponse<AuthTokens>>(
         `${import.meta.env.VITE_API_URL}/v1/auth/refresh`,
-        { refreshToken }
+        {},
+        { withCredentials: true }
       );
 
-      const { accessToken, refreshToken: newRefreshToken, user } =
-        response.data.data;
+      const { accessToken, user } = response.data.data;
 
-      useAuthStore.getState().setTokens(accessToken, newRefreshToken, user);
+      useAuthStore.getState().setTokens(accessToken, user);
       processQueue(null, accessToken);
 
       if (originalRequest.headers) {
