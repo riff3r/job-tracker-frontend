@@ -2,17 +2,16 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import { cn } from '@/lib/utils';
+import { cn, getApiErrorMessage } from '@/lib/utils';
 import { useAuthStore } from '@/store/authStore';
-import { api } from '@/lib/axios';
+import { useLogin } from '@/mutations/useLogin';
 import { Spinner } from '@/components/ui/Spinner';
 import { loginSchema, type LoginFormValues } from '@/schemas/auth';
-import type { ApiResponse, AuthTokens } from '@/types';
 
 export default function Login() {
   const navigate = useNavigate();
   const { setTokens } = useAuthStore();
-  const [isLoading, setIsLoading] = useState(false);
+  const login = useLogin();
   const [serverError, setServerError] = useState<string | null>(null);
 
   const {
@@ -21,19 +20,17 @@ export default function Login() {
     formState: { errors },
   } = useForm<LoginFormValues>({ resolver: zodResolver(loginSchema) });
 
-  async function onSubmit(values: LoginFormValues) {
-    setIsLoading(true);
+  function onSubmit(values: LoginFormValues) {
     setServerError(null);
-    try {
-      const res = await api.post<ApiResponse<AuthTokens>>('/v1/auth/login', values);
-      const { accessToken, user } = res.data.data;
-      setTokens(accessToken, user);
-      navigate('/dashboard');
-    } catch {
-      setServerError('Invalid email or password');
-    } finally {
-      setIsLoading(false);
-    }
+    login.mutate(values, {
+      onSuccess: ({ accessToken, user }) => {
+        setTokens(accessToken, user);
+        navigate('/dashboard');
+      },
+      onError: (err) => {
+        setServerError(getApiErrorMessage(err, 'Invalid email or password'));
+      },
+    });
   }
 
   function handleGoogleLogin() {
@@ -92,10 +89,10 @@ export default function Login() {
 
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={login.isPending}
               className="w-full py-2 px-4 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 disabled:opacity-50 flex items-center justify-center gap-2"
             >
-              {isLoading && <Spinner size="sm" />}
+              {login.isPending && <Spinner size="sm" />}
               Sign in
             </button>
           </form>

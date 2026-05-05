@@ -4,7 +4,6 @@ import type { User } from '@/types';
 interface AuthState {
   user: User | null;
   accessToken: string | null;
-  isAuthenticated: boolean;
   isLoading: boolean;
   setTokens: (accessToken: string, user: User) => void;
   setAccessToken: (accessToken: string) => void;
@@ -15,11 +14,10 @@ interface AuthState {
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   accessToken: null,
-  isAuthenticated: false,
   isLoading: true,
 
   setTokens: (accessToken, user) => {
-    set({ accessToken, user, isAuthenticated: true, isLoading: false });
+    set({ accessToken, user, isLoading: false });
   },
 
   setAccessToken: (accessToken) => {
@@ -27,8 +25,12 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   clearAuth: () => {
-    set({ user: null, accessToken: null, isAuthenticated: false, isLoading: false });
+    set({ user: null, accessToken: null, isLoading: false });
   },
 
   setLoading: (isLoading) => set({ isLoading }),
 }));
+
+// Selector — derived from accessToken so the two can never disagree.
+export const useIsAuthenticated = () =>
+  useAuthStore((state) => state.accessToken !== null);

@@ -1,19 +1,12 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
-import { cn, getApiErrorMessage } from '@/lib/utils';
+import { cn, getApiErrorMessage, todayISO } from '@/lib/utils';
 import { LOCATION_OPTIONS } from '@/lib/constants';
 import { APPLICATION_STATUSES, STATUS_LABELS } from '@/types';
 import { useCreateApplication } from '@/mutations/useCreateApplication';
 import { Spinner } from '@/components/ui/Spinner';
 import { createApplicationSchema, type CreateApplicationFormValues } from '@/schemas/application';
-
-function todayISO() {
-  const d = new Date();
-  const mm = String(d.getMonth() + 1).padStart(2, '0');
-  const dd = String(d.getDate()).padStart(2, '0');
-  return `${d.getFullYear()}-${mm}-${dd}`;
-}
 
 interface ApplicationDrawerProps {
   isOpen: boolean;

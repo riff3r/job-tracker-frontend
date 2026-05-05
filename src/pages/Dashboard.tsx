@@ -4,38 +4,25 @@ import { useAuthStore } from '@/store/authStore';
 import { useApplicationStats } from '@/hooks/useApplicationStats';
 import { useRecentActivity } from '@/hooks/useRecentActivity';
 import { useApplications } from '@/hooks/useApplications';
-import { Skeleton } from '@/components/ui/Skeleton';
 import { STATUS_LABELS, STATUS_COLORS } from '@/types';
-import { WEEKLY_CHART_WINDOW, MONTHLY_CHART_WINDOW } from '@/lib/constants';
+import { timeAgo, todayISO } from '@/lib/utils';
+import { DonutChart } from '@/components/dashboard/DonutChart';
+import { BarChart } from '@/components/dashboard/BarChart';
+import {
+  buildWeeklyBars,
+  buildMonthlyBars,
+  type ChartView,
+} from '@/components/dashboard/buildBars';
+import { DashboardSkeleton } from '@/components/dashboard/DashboardSkeleton';
 import type { ApplicationStatus } from '@/types';
 
-/* ─── Helpers ────────────────────────────────────────────────────────── */
-function todayISO() {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-}
-
-function tomorrowISO() {
+/* ─── Local helpers (only used here) ─────────────────────────────────── */
+function tomorrowISO(): string {
   const d = new Date();
   d.setDate(d.getDate() + 1);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-}
-
-function timeAgo(iso: string) {
-  const diff = Date.now() - new Date(iso).getTime();
-  const mins = Math.floor(diff / 60_000);
-  if (mins < 1) return 'just now';
-  if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  const days = Math.floor(hrs / 24);
-  if (days === 1) return 'yesterday';
-  if (days < 7) return `${days}d ago`;
-  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-}
-
-function formatWeekLabel(iso: string) {
-  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${d.getFullYear()}-${mm}-${dd}`;
 }
 
 function formatFollowUpBadge(iso: string): { label: string; cls: string } {
@@ -48,160 +35,6 @@ function formatFollowUpBadge(iso: string): { label: string; cls: string } {
     label: new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
     cls: 'bg-slate-100 text-slate-600',
   };
-}
-
-/* ─── Donut chart ────────────────────────────────────────────────────── */
-interface DonutSegment { color: string; value: number; label: string }
-
-function DonutChart({ segments, total }: { segments: DonutSegment[]; total: number }) {
-  const r = 38;
-  const cx = 50;
-  const cy = 50;
-  const circumference = 2 * Math.PI * r;
-  let cumulativeAngle = -90;
-
-  return (
-    <svg viewBox="0 0 100 100" width="120" height="120">
-      {total === 0 ? (
-        <circle r={r} cx={cx} cy={cy} fill="none" stroke="#E2E8F0" strokeWidth="16" />
-      ) : (
-        segments.map((seg, i) => {
-          const angle = (seg.value / total) * 360;
-          const dash = (seg.value / total) * circumference;
-          const gap = circumference - dash;
-          const rotation = cumulativeAngle;
-          cumulativeAngle += angle;
-          return (
-            <circle
-              key={i}
-              r={r}
-              cx={cx}
-              cy={cy}
-              fill="none"
-              stroke={seg.color}
-              strokeWidth="16"
-              strokeDasharray={`${dash} ${gap}`}
-              strokeDashoffset={0}
-              transform={`rotate(${rotation} ${cx} ${cy})`}
-            />
-          );
-        })
-      )}
-      <text x={cx} y={cy - 5} textAnchor="middle" fontSize="14" fontWeight="700" fill="#1E293B">
-        {total}
-      </text>
-      <text x={cx} y={cy + 9} textAnchor="middle" fontSize="7" fill="#94A3B8" letterSpacing="0.5">
-        TOTAL
-      </text>
-    </svg>
-  );
-}
-
-/* ─── Bar chart ──────────────────────────────────────────────────────── */
-type ChartView = 'weekly' | 'monthly';
-
-interface BarPoint { label: string; count: number }
-
-function buildWeeklyBars(perWeek: Array<{ week: string; count: number }>): BarPoint[] {
-  return perWeek.slice(-WEEKLY_CHART_WINDOW).map((w) => ({ label: formatWeekLabel(w.week), count: w.count }));
-}
-
-function buildMonthlyBars(perWeek: Array<{ week: string; count: number }>): BarPoint[] {
-  const byMonth: Map<string, { count: number; order: number }> = new Map();
-  perWeek.forEach((w) => {
-    const d = new Date(w.week);
-    const key = d.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
-    const order = d.getFullYear() * 100 + d.getMonth();
-    const existing = byMonth.get(key);
-    byMonth.set(key, { count: (existing?.count ?? 0) + w.count, order });
-  });
-  return [...byMonth.entries()]
-    .sort((a, b) => a[1].order - b[1].order)
-    .slice(-MONTHLY_CHART_WINDOW)
-    .map(([label, v]) => ({ label, count: v.count }));
-}
-
-function BarChart({ bars, view }: { bars: BarPoint[]; view: ChartView }) {
-  const max = Math.max(...bars.map((b) => b.count), 1);
-  const yTicks = [0, Math.round(max / 2), max];
-
-  return (
-    <div className="relative">
-      {/* Y-axis ticks */}
-      <div className="absolute left-0 top-0 bottom-6 flex flex-col justify-between pr-2 pointer-events-none">
-        {[...yTicks].reverse().map((t) => (
-          <span key={t} className="text-[10px] text-slate-400 leading-none">{t}</span>
-        ))}
-      </div>
-
-      {/* Bars */}
-      <div className="ml-6 flex items-end gap-1.5 h-32">
-        {bars.map((b, i) => {
-          const isLast = i === bars.length - 1;
-          const heightPct = max > 0 ? (b.count / max) * 100 : 0;
-          return (
-            <div key={i} className="flex-1 flex flex-col items-center gap-0.5 group">
-              {b.count > 0 && (
-                <span className="text-[9px] text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity">
-                  {b.count}
-                </span>
-              )}
-              <div className="relative w-full flex-1 flex items-end">
-                <div
-                  className="w-full rounded-t transition-all duration-500"
-                  style={{
-                    height: `${Math.max(heightPct, b.count > 0 ? 6 : 1)}%`,
-                    background: isLast ? '#6366F1' : '#C7D2FE',
-                    minHeight: 2,
-                  }}
-                />
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* X-axis labels */}
-      <div className="ml-6 flex gap-1.5 mt-1.5">
-        {bars.map((b, i) => (
-          <div key={i} className="flex-1 text-center">
-            <span className={`text-[9px] ${i === bars.length - 1 ? 'text-indigo-600 font-medium' : 'text-slate-400'}`}>
-              {view === 'weekly' ? b.label.split(' ')[1] ?? b.label : b.label.split(' ')[0]}
-            </span>
-          </div>
-        ))}
-      </div>
-      {/* Month row for weekly view */}
-      {view === 'weekly' && (
-        <div className="ml-6 flex gap-1.5">
-          {bars.map((b, i) => (
-            <div key={i} className="flex-1 text-center">
-              <span className="text-[9px] text-slate-300">{b.label.split(' ')[0]}</span>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-/* ─── Skeleton ───────────────────────────────────────────────────────── */
-function DashboardSkeleton() {
-  return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-24 rounded-xl" />)}
-      </div>
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
-        <Skeleton className="h-56 rounded-xl lg:col-span-3" />
-        <Skeleton className="h-56 rounded-xl lg:col-span-2" />
-      </div>
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
-        <Skeleton className="h-64 rounded-xl lg:col-span-3" />
-        <Skeleton className="h-64 rounded-xl lg:col-span-2" />
-      </div>
-    </div>
-  );
 }
 
 /* ─── Main ───────────────────────────────────────────────────────────── */

@@ -2,12 +2,11 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import { cn } from '@/lib/utils';
+import { cn, getApiErrorMessage } from '@/lib/utils';
 import { useAuthStore } from '@/store/authStore';
-import { api } from '@/lib/axios';
+import { useRegister } from '@/mutations/useRegister';
 import { Spinner } from '@/components/ui/Spinner';
 import { registerSchema, type RegisterFormValues } from '@/schemas/auth';
-import type { ApiResponse, AuthTokens } from '@/types';
 
 function getPasswordStrength(password: string): { label: string; color: string; width: string } {
   if (password.length === 0) return { label: '', color: '', width: '0%' };
@@ -20,7 +19,7 @@ function getPasswordStrength(password: string): { label: string; color: string; 
 export default function Register() {
   const navigate = useNavigate();
   const { setTokens } = useAuthStore();
-  const [isLoading, setIsLoading] = useState(false);
+  const registerMutation = useRegister();
   const [serverError, setServerError] = useState<string | null>(null);
 
   const {
@@ -33,23 +32,19 @@ export default function Register() {
   const password = watch('password', '');
   const strength = getPasswordStrength(password);
 
-  async function onSubmit(values: RegisterFormValues) {
-    setIsLoading(true);
+  function onSubmit(values: RegisterFormValues) {
     setServerError(null);
-    try {
-      const res = await api.post<ApiResponse<AuthTokens>>('/v1/auth/register', {
-        name: values.name,
-        email: values.email,
-        password: values.password,
-      });
-      const { accessToken, user } = res.data.data;
-      setTokens(accessToken, user);
-      navigate('/dashboard');
-    } catch {
-      setServerError('Registration failed. This email may already be in use.');
-    } finally {
-      setIsLoading(false);
-    }
+    registerMutation.mutate(values, {
+      onSuccess: ({ accessToken, user }) => {
+        setTokens(accessToken, user);
+        navigate('/dashboard');
+      },
+      onError: (err) => {
+        setServerError(
+          getApiErrorMessage(err, 'Registration failed. This email may already be in use.'),
+        );
+      },
+    });
   }
 
   return (
@@ -148,10 +143,10 @@ export default function Register() {
 
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={registerMutation.isPending}
               className="w-full py-2 px-4 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 disabled:opacity-50 flex items-center justify-center gap-2"
             >
-              {isLoading && <Spinner size="sm" />}
+              {registerMutation.isPending && <Spinner size="sm" />}
               Create account
             </button>
           </form>

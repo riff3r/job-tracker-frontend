@@ -10,28 +10,28 @@ export default function GoogleCallback() {
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
-    const { setTokens, isAuthenticated } = useAuthStore.getState();
+    const { setTokens, accessToken: existingToken, setAccessToken } = useAuthStore.getState();
 
-    if (isAuthenticated) {
+    if (existingToken !== null) {
       navigate('/dashboard', { replace: true });
       return;
     }
 
-    const accessToken = searchParams.get('accessToken');
+    const tokenFromUrl = searchParams.get('accessToken');
 
-    if (!accessToken) {
+    if (!tokenFromUrl) {
       navigate('/login', { replace: true });
       return;
     }
 
     // Temporarily set the access token so the /me call can be authorized.
     // The refresh cookie was already set by the backend redirect.
-    useAuthStore.getState().setAccessToken(accessToken);
+    setAccessToken(tokenFromUrl);
 
     api
       .get<ApiResponse<User>>('/v1/users/me')
       .then((res) => {
-        setTokens(accessToken, res.data.data);
+        setTokens(tokenFromUrl, res.data.data);
         navigate('/dashboard', { replace: true });
       })
       .catch(() => {

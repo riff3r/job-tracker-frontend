@@ -1,18 +1,21 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/store/authStore';
-import { api } from '@/lib/axios';
+import { useUpdateProfile } from '@/mutations/useUpdateProfile';
+import { useUpdateAvatar } from '@/mutations/useUpdateAvatar';
+import { useChangePassword } from '@/mutations/useChangePassword';
 import { Spinner } from '@/components/ui/Spinner';
 import { cn, getApiErrorMessage } from '@/lib/utils';
 import { AVATAR_MAX_BYTES } from '@/lib/constants';
 import { profileSchema, passwordSchema, type ProfileFormValues, type PasswordFormValues } from '@/schemas/user';
-import type { ApiResponse, User } from '@/types';
 
 export default function Settings() {
-  const { user, setTokens } = useAuthStore();
-  const [avatarLoading, setAvatarLoading] = useState(false);
+  const { user } = useAuthStore();
+  const updateProfile = useUpdateProfile();
+  const updateAvatar = useUpdateAvatar();
+  const changePassword = useChangePassword();
 
   const {
     register: registerProfile,
@@ -25,25 +28,27 @@ export default function Settings() {
     register: registerPassword,
     handleSubmit: handlePasswordSubmit,
     reset: resetPassword,
-    formState: { errors: passwordErrors, isSubmitting: isPasswordSubmitting },
+    formState: { errors: passwordErrors },
   } = useForm<PasswordFormValues>({ resolver: zodResolver(passwordSchema) });
 
   useEffect(() => {
     if (user) resetProfile({ name: user.name });
   }, [user, resetProfile]);
 
-  async function onProfileSubmit(values: ProfileFormValues) {
-    try {
-      const res = await api.patch<ApiResponse<User>>('/v1/users/me', { name: values.name });
-      setTokens(useAuthStore.getState().accessToken ?? '', res.data.data);
-      toast.success('Profile updated');
-      resetProfile({ name: values.name });
-    } catch (err) {
-      toast.error(getApiErrorMessage(err, 'Failed to update profile'));
-    }
+  function onProfileSubmit(values: ProfileFormValues) {
+    updateProfile.mutate(
+      { name: values.name },
+      {
+        onSuccess: () => {
+          toast.success('Profile updated');
+          resetProfile({ name: values.name });
+        },
+        onError: (err) => toast.error(getApiErrorMessage(err, 'Failed to update profile')),
+      },
+    );
   }
 
-  async function onAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+  function onAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith('image/')) {
@@ -54,33 +59,23 @@ export default function Settings() {
       toast.error('Image must be smaller than 2MB');
       return;
     }
-    setAvatarLoading(true);
-    try {
-      const formData = new FormData();
-      formData.append('avatar', file);
-      const res = await api.post<ApiResponse<User>>('/v1/users/me/avatar', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-      setTokens(useAuthStore.getState().accessToken ?? '', res.data.data);
-      toast.success('Avatar updated');
-    } catch (err) {
-      toast.error(getApiErrorMessage(err, 'Failed to update avatar'));
-    } finally {
-      setAvatarLoading(false);
-    }
+    updateAvatar.mutate(file, {
+      onSuccess: () => toast.success('Avatar updated'),
+      onError: (err) => toast.error(getApiErrorMessage(err, 'Failed to update avatar')),
+    });
   }
 
-  async function onPasswordSubmit(values: PasswordFormValues) {
-    try {
-      await api.patch('/v1/users/me/password', {
-        currentPassword: values.currentPassword,
-        newPassword: values.newPassword,
-      });
-      toast.success('Password changed');
-      resetPassword();
-    } catch (err) {
-      toast.error(getApiErrorMessage(err, 'Failed to change password'));
-    }
+  function onPasswordSubmit(values: PasswordFormValues) {
+    changePassword.mutate(
+      { currentPassword: values.currentPassword, newPassword: values.newPassword },
+      {
+        onSuccess: () => {
+          toast.success('Password changed');
+          resetPassword();
+        },
+        onError: (err) => toast.error(getApiErrorMessage(err, 'Failed to change password')),
+      },
+    );
   }
 
   return (
@@ -118,9 +113,10 @@ export default function Settings() {
           <div className="flex justify-end">
             <button
               type="submit"
-              disabled={!isProfileDirty}
-              className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 disabled:opacity-50"
+              disabled={!isProfileDirty || updateProfile.isPending}
+              className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 disabled:opacity-50 flex items-center gap-2"
             >
+              {updateProfile.isPending && <Spinner size="sm" />}
               Save profile
             </button>
           </div>
@@ -143,20 +139,20 @@ export default function Settings() {
               htmlFor="avatar-upload"
               className={cn(
                 'px-4 py-2 text-sm font-medium border rounded-lg cursor-pointer flex items-center gap-2',
-                avatarLoading
+                updateAvatar.isPending
                   ? 'bg-slate-50 text-slate-400 border-slate-200 cursor-not-allowed'
                   : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
               )}
             >
-              {avatarLoading ? <Spinner size="sm" /> : null}
-              {avatarLoading ? 'Uploading...' : 'Change avatar'}
+              {updateAvatar.isPending ? <Spinner size="sm" /> : null}
+              {updateAvatar.isPending ? 'Uploading...' : 'Change avatar'}
             </label>
             <input
               id="avatar-upload"
               type="file"
               accept="image/*"
               className="hidden"
-              disabled={avatarLoading}
+              disabled={updateAvatar.isPending}
               onChange={onAvatarChange}
             />
             <p className="text-xs text-slate-400 mt-1">Images only, max 2MB</p>
@@ -216,10 +212,10 @@ export default function Settings() {
           <div className="flex justify-end">
             <button
               type="submit"
-              disabled={isPasswordSubmitting}
+              disabled={changePassword.isPending}
               className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 disabled:opacity-50 flex items-center gap-2"
             >
-              {isPasswordSubmitting && <Spinner size="sm" />}
+              {changePassword.isPending && <Spinner size="sm" />}
               Change password
             </button>
           </div>
