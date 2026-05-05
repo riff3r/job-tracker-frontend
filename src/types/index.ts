@@ -7,35 +7,7 @@ export type ApplicationStatus =
   | 'REJECTED'
   | 'WITHDRAWN';
 
-export const APPLICATION_STATUSES: ApplicationStatus[] = [
-  'WISHLIST',
-  'APPLIED',
-  'PHONE_SCREEN',
-  'INTERVIEW',
-  'OFFER',
-  'REJECTED',
-  'WITHDRAWN',
-];
-
-export const STATUS_COLORS: Record<ApplicationStatus, string> = {
-  WISHLIST:     '#94A3B8',
-  APPLIED:      '#3B82F6',
-  PHONE_SCREEN: '#EAB308',
-  INTERVIEW:    '#A855F7',
-  OFFER:        '#22C55E',
-  REJECTED:     '#EF4444',
-  WITHDRAWN:    '#9CA3AF',
-};
-
-export const STATUS_LABELS: Record<ApplicationStatus, string> = {
-  WISHLIST: 'Wishlist',
-  APPLIED: 'Applied',
-  PHONE_SCREEN: 'Phone Screen',
-  INTERVIEW: 'Interview',
-  OFFER: 'Offer',
-  REJECTED: 'Rejected',
-  WITHDRAWN: 'Withdrawn',
-};
+// Status order, colors, and labels live in `@/lib/statusTokens`.
 
 export interface User {
   id: string;

@@ -18,6 +18,10 @@ function AppInit() {
     if (initiated.current) return;
     initiated.current = true;
 
+    // Clean up the stale `refreshToken` from the pre-cookie auth migration.
+    // Safe to remove this line after a deploy or two, once all users have visited.
+    localStorage.removeItem('refreshToken');
+
     const { setTokens, clearAuth } = useAuthStore.getState();
 
     // Use raw axios (not the api instance) to avoid the response interceptor

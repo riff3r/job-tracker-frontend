@@ -31,6 +31,10 @@ export default {
           DEFAULT: '#777587',
           variant: '#C7C4D8',
         },
+        ink: {
+          DEFAULT: '#1A1C1C',  // primary body text
+          strong:  '#464555',  // emphasis text (e.g. icon-button)
+        },
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],

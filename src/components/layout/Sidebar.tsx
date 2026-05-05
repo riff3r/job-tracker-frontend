@@ -107,7 +107,7 @@ export function Sidebar() {
       </nav>
 
       {/* ── Bottom section ── */}
-      <div className="border-t border-[#EEEEEE] pt-2 pb-2 space-y-0.5">
+      <div className="border-t border-surface-container pt-2 pb-2 space-y-0.5">
         {bottomNavItems.map((item) => (
           <NavLink
             key={item.to}
@@ -122,7 +122,7 @@ export function Sidebar() {
         ))}
         <button
           onClick={handleLogout}
-          className="sidebar-nav-item w-full text-left text-[#777587] hover:text-red-600"
+          className="sidebar-nav-item w-full text-left text-outline hover:text-red-600"
         >
           <LogoutIcon />
           <span>Logout</span>
@@ -130,19 +130,16 @@ export function Sidebar() {
       </div>
 
       {/* ── User profile ── */}
-      <div className="px-4 py-4 border-t border-[#EEEEEE]">
+      <div className="px-4 py-4 border-t border-surface-container">
         <div className="flex items-center gap-3">
-          <div
-            className="avatar w-8 h-8 text-sm text-white flex-shrink-0"
-            style={{ background: '#4F46E5' }}
-          >
+          <div className="avatar w-8 h-8 text-sm text-white flex-shrink-0 bg-primary">
             {initials}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-[#1A1C1C] truncate leading-tight">
+            <p className="text-sm font-medium text-ink truncate leading-tight">
               {user?.name ?? 'User'}
             </p>
-            <p className="text-xs text-[#777587] truncate leading-tight mt-0.5">
+            <p className="text-xs text-outline truncate leading-tight mt-0.5">
               {user?.email ?? ''}
             </p>
           </div>

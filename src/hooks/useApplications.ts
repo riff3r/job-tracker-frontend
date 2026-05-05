@@ -14,16 +14,10 @@ interface ApplicationFilters {
 async function fetchApplications(
   filters: ApplicationFilters
 ): Promise<PaginatedResponse<Application>> {
-  const params = new URLSearchParams();
-  if (filters.status) params.set('status', filters.status);
-  if (filters.search) params.set('search', filters.search);
-  if (filters.page) params.set('page', String(filters.page));
-  if (filters.limit) params.set('limit', String(filters.limit));
-  if (filters.followUpDateAfter) params.set('followUpDateAfter', filters.followUpDateAfter);
-  if (filters.followUpDateBefore) params.set('followUpDateBefore', filters.followUpDateBefore);
-
+  // Axios drops undefined params automatically and handles encoding.
   const response = await api.get<ApiResponse<PaginatedResponse<Application>>>(
-    `/v1/applications?${params.toString()}`
+    '/v1/applications',
+    { params: filters },
   );
   return response.data.data;
 }

@@ -4,7 +4,7 @@ import { useAuthStore } from '@/store/authStore';
 import { useApplicationStats } from '@/hooks/useApplicationStats';
 import { useRecentActivity } from '@/hooks/useRecentActivity';
 import { useApplications } from '@/hooks/useApplications';
-import { STATUS_LABELS, STATUS_COLORS } from '@/types';
+import { STATUS_LABELS, STATUS_COLORS } from '@/lib/statusTokens';
 import { timeAgo, todayISO } from '@/lib/utils';
 import { DonutChart } from '@/components/dashboard/DonutChart';
 import { BarChart } from '@/components/dashboard/BarChart';

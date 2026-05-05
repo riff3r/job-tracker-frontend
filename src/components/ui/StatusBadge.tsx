@@ -1,5 +1,6 @@
 import { cn } from '@/lib/utils';
-import { STATUS_LABELS, type ApplicationStatus } from '@/types';
+import { STATUS_LABELS } from '@/lib/statusTokens';
+import type { ApplicationStatus } from '@/types';
 
 const STATUS_STYLES: Record<ApplicationStatus, string> = {
   WISHLIST: 'bg-slate-100 text-slate-600',

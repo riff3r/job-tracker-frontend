@@ -4,7 +4,7 @@ import { Topbar } from './Topbar';
 
 export function Layout() {
   return (
-    <div className="min-h-screen bg-[#F9F9F9]">
+    <div className="min-h-screen bg-surface">
       {/* Fixed sidebar */}
       <Sidebar />
 

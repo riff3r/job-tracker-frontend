@@ -8,7 +8,8 @@ import {
   type DragStartEvent,
 } from '@dnd-kit/core';
 import { useState } from 'react';
-import { APPLICATION_STATUSES, type Application, type ApplicationStatus } from '@/types';
+import { APPLICATION_STATUSES } from '@/lib/statusTokens';
+import type { Application, ApplicationStatus } from '@/types';
 import { KanbanColumn } from './KanbanColumn';
 import { ApplicationCard } from './ApplicationCard';
 import { useUpdateApplication } from '@/mutations/useUpdateApplication';

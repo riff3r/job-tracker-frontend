@@ -3,9 +3,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { cn, getApiErrorMessage } from '@/lib/utils';
+import { INPUT_BASE_CLASS } from '@/lib/constants';
 import { useAuthStore } from '@/store/authStore';
 import { useRegister } from '@/mutations/useRegister';
 import { Spinner } from '@/components/ui/Spinner';
+import { FormFieldError } from '@/components/ui/FormFieldError';
 import { registerSchema, type RegisterFormValues } from '@/schemas/auth';
 
 function getPasswordStrength(password: string): { label: string; color: string; width: string } {
@@ -64,46 +66,51 @@ export default function Register() {
             )}
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Name</label>
+              <label htmlFor="register-name" className="block text-sm font-medium text-slate-700 mb-1">Name</label>
               <input
+                id="register-name"
                 {...register('name')}
                 autoComplete="name"
+                aria-invalid={errors.name ? 'true' : 'false'}
+                aria-describedby={errors.name ? 'register-name-error' : undefined}
                 className={cn(
-                  'w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent',
+                  INPUT_BASE_CLASS,
                   errors.name ? 'border-red-400' : 'border-slate-300'
                 )}
                 placeholder="Jane Smith"
               />
-              {errors.name && (
-                <p className="text-xs text-red-500 mt-1">{errors.name.message}</p>
-              )}
+              <FormFieldError id="register-name-error">{errors.name?.message}</FormFieldError>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
+              <label htmlFor="register-email" className="block text-sm font-medium text-slate-700 mb-1">Email</label>
               <input
+                id="register-email"
                 {...register('email')}
                 type="email"
                 autoComplete="email"
+                aria-invalid={errors.email ? 'true' : 'false'}
+                aria-describedby={errors.email ? 'register-email-error' : undefined}
                 className={cn(
-                  'w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent',
+                  INPUT_BASE_CLASS,
                   errors.email ? 'border-red-400' : 'border-slate-300'
                 )}
                 placeholder="you@example.com"
               />
-              {errors.email && (
-                <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>
-              )}
+              <FormFieldError id="register-email-error">{errors.email?.message}</FormFieldError>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Password</label>
+              <label htmlFor="register-password" className="block text-sm font-medium text-slate-700 mb-1">Password</label>
               <input
+                id="register-password"
                 {...register('password')}
                 type="password"
                 autoComplete="new-password"
+                aria-invalid={errors.password ? 'true' : 'false'}
+                aria-describedby={errors.password ? 'register-password-error' : undefined}
                 className={cn(
-                  'w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent',
+                  INPUT_BASE_CLASS,
                   errors.password ? 'border-red-400' : 'border-slate-300'
                 )}
                 placeholder="Min. 8 characters"
@@ -119,26 +126,25 @@ export default function Register() {
                   <p className="text-xs text-slate-500 mt-0.5">{strength.label}</p>
                 </div>
               )}
-              {errors.password && (
-                <p className="text-xs text-red-500 mt-1">{errors.password.message}</p>
-              )}
+              <FormFieldError id="register-password-error">{errors.password?.message}</FormFieldError>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Confirm Password</label>
+              <label htmlFor="register-confirm-password" className="block text-sm font-medium text-slate-700 mb-1">Confirm Password</label>
               <input
+                id="register-confirm-password"
                 {...register('confirmPassword')}
                 type="password"
                 autoComplete="new-password"
+                aria-invalid={errors.confirmPassword ? 'true' : 'false'}
+                aria-describedby={errors.confirmPassword ? 'register-confirm-password-error' : undefined}
                 className={cn(
-                  'w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent',
+                  INPUT_BASE_CLASS,
                   errors.confirmPassword ? 'border-red-400' : 'border-slate-300'
                 )}
                 placeholder="••••••••"
               />
-              {errors.confirmPassword && (
-                <p className="text-xs text-red-500 mt-1">{errors.confirmPassword.message}</p>
-              )}
+              <FormFieldError id="register-confirm-password-error">{errors.confirmPassword?.message}</FormFieldError>
             </div>
 
             <button

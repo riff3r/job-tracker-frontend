@@ -3,9 +3,10 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { cn, getApiErrorMessage } from '@/lib/utils';
-import { RESUME_MAX_SIZE_MB } from '@/lib/constants';
+import { RESUME_MAX_SIZE_MB, INPUT_BASE_CLASS } from '@/lib/constants';
 import { useUploadResume } from '@/mutations/useUploadResume';
 import { Spinner } from '@/components/ui/Spinner';
+import { FormFieldError } from '@/components/ui/FormFieldError';
 import { resumeUploadSchema, type ResumeUploadFormValues } from '@/schemas/resume';
 
 const ACCEPTED_TYPES = [
@@ -113,17 +114,19 @@ export function ResumeUploader() {
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex gap-3">
         <div className="flex-1">
+          <label htmlFor="resume-label" className="sr-only">Resume label</label>
           <input
+            id="resume-label"
             {...register('label')}
+            aria-invalid={errors.label ? 'true' : 'false'}
+            aria-describedby={errors.label ? 'resume-label-error' : undefined}
             className={cn(
-              'w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent',
+              INPUT_BASE_CLASS,
               errors.label ? 'border-red-400' : 'border-slate-300'
             )}
             placeholder="e.g. Software Engineer"
           />
-          {errors.label && (
-            <p className="text-xs text-red-500 mt-1">{errors.label.message}</p>
-          )}
+          <FormFieldError id="resume-label-error">{errors.label?.message}</FormFieldError>
         </div>
         <button
           type="submit"

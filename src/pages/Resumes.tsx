@@ -22,7 +22,13 @@ export default function Resumes() {
   const [deleteTarget, setDeleteTarget] = useState<Resume | null>(null);
 
   function handleDownload(id: string) {
-    window.open(`${import.meta.env.VITE_API_URL}/v1/resumes/${id}/download`);
+    // noopener+noreferrer prevents the opened context from accessing window.opener
+    // and from leaking referrer info. Defense in depth even though the URL is internal.
+    window.open(
+      `${import.meta.env.VITE_API_URL}/v1/resumes/${id}/download`,
+      '_blank',
+      'noopener,noreferrer',
+    );
   }
 
   function handleDelete() {

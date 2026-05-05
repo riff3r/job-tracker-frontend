@@ -5,7 +5,8 @@ import { ApplicationDrawer } from '@/components/applications/ApplicationDrawer';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { formatDate } from '@/lib/utils';
-import { APPLICATION_STATUSES, type ApplicationStatus } from '@/types';
+import { APPLICATION_STATUSES } from '@/lib/statusTokens';
+import type { ApplicationStatus } from '@/types';
 
 export default function Applications() {
   const [drawerOpen, setDrawerOpen] = useState(false);

@@ -1,5 +1,6 @@
 import { cn, timeAgo } from '@/lib/utils';
-import { STATUS_LABELS, type ActivityLog, type ApplicationStatus } from '@/types';
+import { STATUS_LABELS } from '@/lib/statusTokens';
+import type { ActivityLog, ApplicationStatus } from '@/types';
 
 const STATUS_DOT_COLORS: Record<ApplicationStatus, string> = {
   WISHLIST: 'bg-slate-400',

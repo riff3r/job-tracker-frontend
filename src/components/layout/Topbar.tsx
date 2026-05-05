@@ -40,8 +40,8 @@ export function Topbar() {
     <header className="app-topbar">
       {/* Page title */}
       <div className="flex-1 min-w-0">
-        <h1 className="text-[15px] font-semibold text-[#1A1C1C] leading-tight">{title}</h1>
-        <p className="text-xs text-[#777587] mt-0.5 hidden sm:block">{subtitle}</p>
+        <h1 className="text-[15px] font-semibold text-ink leading-tight">{title}</h1>
+        <p className="text-xs text-outline mt-0.5 hidden sm:block">{subtitle}</p>
       </div>
 
       {/* Right side actions */}
@@ -49,18 +49,18 @@ export function Topbar() {
         {/* Search */}
         <button
           id="topbar-search-btn"
-          className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm text-[#777587] bg-[#F3F3F3] hover:bg-[#EEEEEE] transition-colors border border-[#E8E8E8]"
+          className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm text-outline bg-surface-low hover:bg-surface-container transition-colors border border-surface-high"
           style={{ minWidth: 180 }}
         >
           <SearchIcon />
           <span className="text-xs">Search…</span>
-          <span className="ml-auto text-[10px] text-[#C7C4D8] font-mono bg-white border border-[#E8E8E8] rounded px-1">⌘K</span>
+          <span className="ml-auto text-[10px] text-outline-variant font-mono bg-white border border-surface-high rounded px-1">⌘K</span>
         </button>
 
         {/* Notification bell */}
         <button
           id="topbar-notification-btn"
-          className="relative w-8 h-8 flex items-center justify-center rounded-lg text-[#464555] hover:bg-[#EEEEEE] transition-colors"
+          className="relative w-8 h-8 flex items-center justify-center rounded-lg text-ink-strong hover:bg-surface-container transition-colors"
         >
           <BellIcon />
           {/* Indicator dot */}
@@ -68,20 +68,17 @@ export function Topbar() {
         </button>
 
         {/* Divider */}
-        <div className="w-px h-5 bg-[#E8E8E8] mx-1" />
+        <div className="w-px h-5 bg-surface-high mx-1" />
 
         {/* Avatar */}
         <button
           id="topbar-profile-btn"
           className="flex items-center gap-2 hover:opacity-80 transition-opacity"
         >
-          <div
-            className="avatar w-7 h-7 text-xs text-white"
-            style={{ background: '#4F46E5' }}
-          >
+          <div className="avatar w-7 h-7 text-xs text-white bg-primary">
             {initials}
           </div>
-          <span className="text-xs font-medium text-[#1A1C1C] hidden lg:block">
+          <span className="text-xs font-medium text-ink hidden lg:block">
             {user?.name?.split(' ')[0] ?? 'User'}
           </span>
         </button>

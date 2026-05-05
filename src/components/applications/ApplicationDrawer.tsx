@@ -2,10 +2,11 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { cn, getApiErrorMessage, todayISO } from '@/lib/utils';
-import { LOCATION_OPTIONS } from '@/lib/constants';
-import { APPLICATION_STATUSES, STATUS_LABELS } from '@/types';
+import { LOCATION_OPTIONS, INPUT_BASE_CLASS } from '@/lib/constants';
+import { APPLICATION_STATUSES, STATUS_LABELS } from '@/lib/statusTokens';
 import { useCreateApplication } from '@/mutations/useCreateApplication';
 import { Spinner } from '@/components/ui/Spinner';
+import { FormFieldError } from '@/components/ui/FormFieldError';
 import { createApplicationSchema, type CreateApplicationFormValues } from '@/schemas/application';
 
 interface ApplicationDrawerProps {
@@ -86,62 +87,66 @@ export function ApplicationDrawer({ isOpen, onClose }: ApplicationDrawerProps) {
           className="flex-1 overflow-y-auto px-6 py-5 space-y-4"
         >
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
+            <label htmlFor="drawer-company" className="block text-sm font-medium text-slate-700 mb-1">
               Company <span className="text-red-500">*</span>
             </label>
             <input
+              id="drawer-company"
               {...register('company')}
+              aria-invalid={errors.company ? 'true' : 'false'}
+              aria-describedby={errors.company ? 'drawer-company-error' : undefined}
               className={cn(
-                'w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent',
+                INPUT_BASE_CLASS,
                 errors.company ? 'border-red-400' : 'border-slate-300'
               )}
               placeholder="e.g. Google"
             />
-            {errors.company && (
-              <p className="text-xs text-red-500 mt-1">{errors.company.message}</p>
-            )}
+            <FormFieldError id="drawer-company-error">{errors.company?.message}</FormFieldError>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
+            <label htmlFor="drawer-role" className="block text-sm font-medium text-slate-700 mb-1">
               Role <span className="text-red-500">*</span>
             </label>
             <input
+              id="drawer-role"
               {...register('role')}
+              aria-invalid={errors.role ? 'true' : 'false'}
+              aria-describedby={errors.role ? 'drawer-role-error' : undefined}
               className={cn(
-                'w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent',
+                INPUT_BASE_CLASS,
                 errors.role ? 'border-red-400' : 'border-slate-300'
               )}
               placeholder="e.g. Frontend Engineer"
             />
-            {errors.role && (
-              <p className="text-xs text-red-500 mt-1">{errors.role.message}</p>
-            )}
+            <FormFieldError id="drawer-role-error">{errors.role?.message}</FormFieldError>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
+            <label htmlFor="drawer-job-url" className="block text-sm font-medium text-slate-700 mb-1">
               Job URL
             </label>
             <input
+              id="drawer-job-url"
               {...register('jobUrl')}
               type="url"
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              aria-invalid={errors.jobUrl ? 'true' : 'false'}
+              aria-describedby={errors.jobUrl ? 'drawer-job-url-error' : undefined}
+              className={cn(INPUT_BASE_CLASS, errors.jobUrl ? 'border-red-400' : 'border-slate-300')}
               placeholder="https://..."
             />
-            {errors.jobUrl && (
-              <p className="text-xs text-red-500 mt-1">{errors.jobUrl.message}</p>
-            )}
+            <FormFieldError id="drawer-job-url-error">{errors.jobUrl?.message}</FormFieldError>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
+              <label htmlFor="drawer-location" className="block text-sm font-medium text-slate-700 mb-1">
                 Location
               </label>
               <select
+                id="drawer-location"
                 {...register('location')}
-                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className={cn(INPUT_BASE_CLASS, 'border-slate-300')}
               >
                 {LOCATION_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -151,24 +156,26 @@ export function ApplicationDrawer({ isOpen, onClose }: ApplicationDrawerProps) {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
+              <label htmlFor="drawer-salary" className="block text-sm font-medium text-slate-700 mb-1">
                 Salary
               </label>
               <input
+                id="drawer-salary"
                 {...register('salary')}
-                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className={cn(INPUT_BASE_CLASS, 'border-slate-300')}
                 placeholder="$80k–$100k"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
+            <label htmlFor="drawer-status" className="block text-sm font-medium text-slate-700 mb-1">
               Status
             </label>
             <select
+              id="drawer-status"
               {...register('status')}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              className={cn(INPUT_BASE_CLASS, 'border-slate-300')}
             >
               {APPLICATION_STATUSES.map((s) => (
                 <option key={s} value={s}>
@@ -180,35 +187,38 @@ export function ApplicationDrawer({ isOpen, onClose }: ApplicationDrawerProps) {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
+              <label htmlFor="drawer-applied-at" className="block text-sm font-medium text-slate-700 mb-1">
                 Applied Date
               </label>
               <input
+                id="drawer-applied-at"
                 {...register('appliedAt')}
                 type="date"
-                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className={cn(INPUT_BASE_CLASS, 'border-slate-300')}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
+              <label htmlFor="drawer-follow-up-date" className="block text-sm font-medium text-slate-700 mb-1">
                 Follow-up Date
               </label>
               <input
+                id="drawer-follow-up-date"
                 {...register('followUpDate')}
                 type="date"
-                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className={cn(INPUT_BASE_CLASS, 'border-slate-300')}
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
+            <label htmlFor="drawer-notes" className="block text-sm font-medium text-slate-700 mb-1">
               Notes
             </label>
             <textarea
+              id="drawer-notes"
               {...register('notes')}
               rows={4}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+              className={cn(INPUT_BASE_CLASS, 'border-slate-300 resize-none')}
               placeholder="Any notes about this application..."
             />
           </div>

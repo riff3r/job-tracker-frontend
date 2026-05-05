@@ -3,9 +3,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { cn, getApiErrorMessage } from '@/lib/utils';
+import { INPUT_BASE_CLASS } from '@/lib/constants';
 import { useAuthStore } from '@/store/authStore';
 import { useLogin } from '@/mutations/useLogin';
 import { Spinner } from '@/components/ui/Spinner';
+import { FormFieldError } from '@/components/ui/FormFieldError';
 import { loginSchema, type LoginFormValues } from '@/schemas/auth';
 
 export default function Login() {
@@ -54,37 +56,39 @@ export default function Login() {
             )}
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
+              <label htmlFor="login-email" className="block text-sm font-medium text-slate-700 mb-1">Email</label>
               <input
+                id="login-email"
                 {...register('email')}
                 type="email"
                 autoComplete="email"
+                aria-invalid={errors.email ? 'true' : 'false'}
+                aria-describedby={errors.email ? 'login-email-error' : undefined}
                 className={cn(
-                  'w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent',
+                  INPUT_BASE_CLASS,
                   errors.email ? 'border-red-400' : 'border-slate-300'
                 )}
                 placeholder="you@example.com"
               />
-              {errors.email && (
-                <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>
-              )}
+              <FormFieldError id="login-email-error">{errors.email?.message}</FormFieldError>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Password</label>
+              <label htmlFor="login-password" className="block text-sm font-medium text-slate-700 mb-1">Password</label>
               <input
+                id="login-password"
                 {...register('password')}
                 type="password"
                 autoComplete="current-password"
+                aria-invalid={errors.password ? 'true' : 'false'}
+                aria-describedby={errors.password ? 'login-password-error' : undefined}
                 className={cn(
-                  'w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent',
+                  INPUT_BASE_CLASS,
                   errors.password ? 'border-red-400' : 'border-slate-300'
                 )}
                 placeholder="••••••••"
               />
-              {errors.password && (
-                <p className="text-xs text-red-500 mt-1">{errors.password.message}</p>
-              )}
+              <FormFieldError id="login-password-error">{errors.password?.message}</FormFieldError>
             </div>
 
             <button

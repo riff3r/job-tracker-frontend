@@ -7,7 +7,8 @@ export function useRecentActivity(limit = 6) {
     queryKey: ['recent-activity', limit],
     queryFn: async () => {
       const response = await api.get<ApiResponse<ActivityLogWithApplication[]>>(
-        `/v1/applications/recent-activity?limit=${limit}`
+        '/v1/applications/recent-activity',
+        { params: { limit } },
       );
       return response.data.data;
     },

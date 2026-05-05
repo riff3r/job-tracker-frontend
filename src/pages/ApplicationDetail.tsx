@@ -11,9 +11,10 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Spinner } from '@/components/ui/Spinner';
+import { FormFieldError } from '@/components/ui/FormFieldError';
 import { cn, getApiErrorMessage } from '@/lib/utils';
-import { LOCATION_OPTIONS } from '@/lib/constants';
-import { APPLICATION_STATUSES, STATUS_LABELS } from '@/types';
+import { LOCATION_OPTIONS, INPUT_BASE_CLASS } from '@/lib/constants';
+import { APPLICATION_STATUSES, STATUS_LABELS } from '@/lib/statusTokens';
 import { updateApplicationSchema, type UpdateApplicationFormValues } from '@/schemas/application';
 
 export default function ApplicationDetail() {
@@ -146,42 +147,49 @@ export default function ApplicationDetail() {
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Company</label>
+                  <label htmlFor="detail-company" className="block text-sm font-medium text-slate-700 mb-1">Company</label>
                   <input
+                    id="detail-company"
                     {...register('company')}
-                    className={cn(
-                      'w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent',
-                      errors.company ? 'border-red-400' : 'border-slate-300'
-                    )}
+                    aria-invalid={errors.company ? 'true' : 'false'}
+                    aria-describedby={errors.company ? 'detail-company-error' : undefined}
+                    className={cn(INPUT_BASE_CLASS, errors.company ? 'border-red-400' : 'border-slate-300')}
                   />
+                  <FormFieldError id="detail-company-error">{errors.company?.message}</FormFieldError>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Role</label>
+                  <label htmlFor="detail-role" className="block text-sm font-medium text-slate-700 mb-1">Role</label>
                   <input
+                    id="detail-role"
                     {...register('role')}
-                    className={cn(
-                      'w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent',
-                      errors.role ? 'border-red-400' : 'border-slate-300'
-                    )}
+                    aria-invalid={errors.role ? 'true' : 'false'}
+                    aria-describedby={errors.role ? 'detail-role-error' : undefined}
+                    className={cn(INPUT_BASE_CLASS, errors.role ? 'border-red-400' : 'border-slate-300')}
                   />
+                  <FormFieldError id="detail-role-error">{errors.role?.message}</FormFieldError>
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Job URL</label>
+                <label htmlFor="detail-job-url" className="block text-sm font-medium text-slate-700 mb-1">Job URL</label>
                 <input
+                  id="detail-job-url"
                   {...register('jobUrl')}
                   type="url"
-                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  aria-invalid={errors.jobUrl ? 'true' : 'false'}
+                  aria-describedby={errors.jobUrl ? 'detail-job-url-error' : undefined}
+                  className={cn(INPUT_BASE_CLASS, errors.jobUrl ? 'border-red-400' : 'border-slate-300')}
                 />
+                <FormFieldError id="detail-job-url-error">{errors.jobUrl?.message}</FormFieldError>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Location</label>
+                  <label htmlFor="detail-location" className="block text-sm font-medium text-slate-700 mb-1">Location</label>
                   <select
+                    id="detail-location"
                     {...register('location')}
-                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    className={cn(INPUT_BASE_CLASS, 'border-slate-300')}
                   >
                     <option value="">— select —</option>
                     {LOCATION_OPTIONS.map((opt) => (
@@ -190,19 +198,21 @@ export default function ApplicationDetail() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Salary</label>
+                  <label htmlFor="detail-salary" className="block text-sm font-medium text-slate-700 mb-1">Salary</label>
                   <input
+                    id="detail-salary"
                     {...register('salary')}
-                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    className={cn(INPUT_BASE_CLASS, 'border-slate-300')}
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Status</label>
+                <label htmlFor="detail-status" className="block text-sm font-medium text-slate-700 mb-1">Status</label>
                 <select
+                  id="detail-status"
                   {...register('status')}
-                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className={cn(INPUT_BASE_CLASS, 'border-slate-300')}
                 >
                   {APPLICATION_STATUSES.map((s) => (
                     <option key={s} value={s}>{STATUS_LABELS[s]}</option>
@@ -212,29 +222,32 @@ export default function ApplicationDetail() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Applied Date</label>
+                  <label htmlFor="detail-applied-at" className="block text-sm font-medium text-slate-700 mb-1">Applied Date</label>
                   <input
+                    id="detail-applied-at"
                     {...register('appliedAt')}
                     type="date"
-                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    className={cn(INPUT_BASE_CLASS, 'border-slate-300')}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Follow-up Date</label>
+                  <label htmlFor="detail-follow-up-date" className="block text-sm font-medium text-slate-700 mb-1">Follow-up Date</label>
                   <input
+                    id="detail-follow-up-date"
                     {...register('followUpDate')}
                     type="date"
-                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    className={cn(INPUT_BASE_CLASS, 'border-slate-300')}
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Notes</label>
+                <label htmlFor="detail-notes" className="block text-sm font-medium text-slate-700 mb-1">Notes</label>
                 <textarea
+                  id="detail-notes"
                   {...register('notes')}
                   rows={4}
-                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+                  className={cn(INPUT_BASE_CLASS, 'border-slate-300 resize-none')}
                 />
               </div>
 

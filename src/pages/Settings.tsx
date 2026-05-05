@@ -7,8 +7,9 @@ import { useUpdateProfile } from '@/mutations/useUpdateProfile';
 import { useUpdateAvatar } from '@/mutations/useUpdateAvatar';
 import { useChangePassword } from '@/mutations/useChangePassword';
 import { Spinner } from '@/components/ui/Spinner';
+import { FormFieldError } from '@/components/ui/FormFieldError';
 import { cn, getApiErrorMessage } from '@/lib/utils';
-import { AVATAR_MAX_BYTES } from '@/lib/constants';
+import { AVATAR_MAX_BYTES, INPUT_BASE_CLASS } from '@/lib/constants';
 import { profileSchema, passwordSchema, type ProfileFormValues, type PasswordFormValues } from '@/schemas/user';
 
 export default function Settings() {
@@ -90,21 +91,23 @@ export default function Settings() {
         <h2 className="text-sm font-semibold text-slate-900 mb-4">Profile</h2>
         <form onSubmit={handleProfileSubmit(onProfileSubmit)} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Name</label>
+            <label htmlFor="settings-name" className="block text-sm font-medium text-slate-700 mb-1">Name</label>
             <input
+              id="settings-name"
               {...registerProfile('name')}
+              aria-invalid={profileErrors.name ? 'true' : 'false'}
+              aria-describedby={profileErrors.name ? 'settings-name-error' : undefined}
               className={cn(
-                'w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent',
+                INPUT_BASE_CLASS,
                 profileErrors.name ? 'border-red-400' : 'border-slate-300'
               )}
             />
-            {profileErrors.name && (
-              <p className="text-xs text-red-500 mt-1">{profileErrors.name.message}</p>
-            )}
+            <FormFieldError id="settings-name-error">{profileErrors.name?.message}</FormFieldError>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
+            <label htmlFor="settings-email" className="block text-sm font-medium text-slate-700 mb-1">Email</label>
             <input
+              id="settings-email"
               value={user?.email ?? ''}
               disabled
               className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-400 cursor-not-allowed"
@@ -165,49 +168,52 @@ export default function Settings() {
         <h2 className="text-sm font-semibold text-slate-900 mb-4">Change Password</h2>
         <form onSubmit={handlePasswordSubmit(onPasswordSubmit)} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Current Password</label>
+            <label htmlFor="settings-current-password" className="block text-sm font-medium text-slate-700 mb-1">Current Password</label>
             <input
+              id="settings-current-password"
               {...registerPassword('currentPassword')}
               type="password"
               autoComplete="current-password"
+              aria-invalid={passwordErrors.currentPassword ? 'true' : 'false'}
+              aria-describedby={passwordErrors.currentPassword ? 'settings-current-password-error' : undefined}
               className={cn(
-                'w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent',
+                INPUT_BASE_CLASS,
                 passwordErrors.currentPassword ? 'border-red-400' : 'border-slate-300'
               )}
             />
-            {passwordErrors.currentPassword && (
-              <p className="text-xs text-red-500 mt-1">{passwordErrors.currentPassword.message}</p>
-            )}
+            <FormFieldError id="settings-current-password-error">{passwordErrors.currentPassword?.message}</FormFieldError>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">New Password</label>
+            <label htmlFor="settings-new-password" className="block text-sm font-medium text-slate-700 mb-1">New Password</label>
             <input
+              id="settings-new-password"
               {...registerPassword('newPassword')}
               type="password"
               autoComplete="new-password"
+              aria-invalid={passwordErrors.newPassword ? 'true' : 'false'}
+              aria-describedby={passwordErrors.newPassword ? 'settings-new-password-error' : undefined}
               className={cn(
-                'w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent',
+                INPUT_BASE_CLASS,
                 passwordErrors.newPassword ? 'border-red-400' : 'border-slate-300'
               )}
             />
-            {passwordErrors.newPassword && (
-              <p className="text-xs text-red-500 mt-1">{passwordErrors.newPassword.message}</p>
-            )}
+            <FormFieldError id="settings-new-password-error">{passwordErrors.newPassword?.message}</FormFieldError>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Confirm New Password</label>
+            <label htmlFor="settings-confirm-new-password" className="block text-sm font-medium text-slate-700 mb-1">Confirm New Password</label>
             <input
+              id="settings-confirm-new-password"
               {...registerPassword('confirmNewPassword')}
               type="password"
               autoComplete="new-password"
+              aria-invalid={passwordErrors.confirmNewPassword ? 'true' : 'false'}
+              aria-describedby={passwordErrors.confirmNewPassword ? 'settings-confirm-new-password-error' : undefined}
               className={cn(
-                'w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent',
+                INPUT_BASE_CLASS,
                 passwordErrors.confirmNewPassword ? 'border-red-400' : 'border-slate-300'
               )}
             />
-            {passwordErrors.confirmNewPassword && (
-              <p className="text-xs text-red-500 mt-1">{passwordErrors.confirmNewPassword.message}</p>
-            )}
+            <FormFieldError id="settings-confirm-new-password-error">{passwordErrors.confirmNewPassword?.message}</FormFieldError>
           </div>
           <div className="flex justify-end">
             <button
